@@ -52,7 +52,7 @@ impl SentenceEmbeddingsBuilder<Local> {
         }
     }
 
-    pub fn create_model(self) -> Result<SentenceEmbeddingsModel, RustBertError> {
+    pub fn create_config(self) -> Result<SentenceEmbeddingsConfig, RustBertError> {
         let model_dir = self.inner.model_dir;
 
         let modules_config = model_dir.join("modules.json");
@@ -93,7 +93,7 @@ impl SentenceEmbeddingsBuilder<Local> {
             }
         };
 
-        let config = SentenceEmbeddingsConfig {
+        return Ok(SentenceEmbeddingsConfig {
             modules_config_resource: modules_config.into(),
             transformer_type,
             transformer_config_resource: transformer_config.into(),
@@ -106,8 +106,11 @@ impl SentenceEmbeddingsBuilder<Local> {
             tokenizer_vocab_resource: tokenizer_vocab.into(),
             tokenizer_merges_resource: tokenizer_merges.map(|r| r.into()),
             device: self.device,
-        };
+        });
+    }
 
+    pub fn create_model(self) -> Result<SentenceEmbeddingsModel, RustBertError> {
+        let config = self.create_config()?;
         SentenceEmbeddingsModel::new(config)
     }
 }
